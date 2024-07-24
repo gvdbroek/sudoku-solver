@@ -1,24 +1,34 @@
 const std = @import("std");
 
-pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+pub fn load_board(filename: []const u8) !void {
+    // const realPath: []u8 = std.fs.cwd().realpath(filename);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    var f = try std.fs.cwd().openFile(filename, .{});
+    defer f.close();
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    const buffer: []u8 = try f.readToEndAlloc(allocator, std.math.maxInt(usize));
+    defer allocator.free(buffer);
+    std.debug.print("Loaded data into memory:\n", .{});
 
-    try bw.flush(); // don't forget to flush!
+    for (buffer) |char| {
+        if (char == '\n') {
+            continue;
+        }
+        std.debug.print("{c}", .{char});
+    }
+    std.debug.print("\n", .{});
+    // std.debug.print("Checking for file @ {}", .{realPath});
+
+    // std.fs.openFileAbsolute(absolute_path: []const u8, flags: File.OpenFlags)
 }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+pub fn main() !void {
+    // var board: [9][9]u8 = [9][9]u8();
+    //
+    const sudoku_file = "../boards/test_grid_1.txt";
+
+    try load_board(sudoku_file);
 }
