@@ -146,7 +146,7 @@ def collapse_solve_matrix(solve_matrix):
 
 
 def main():
-    grid = _load_debug_grid("./test_grid_1.txt")
+    grid = _load_debug_grid("../boards/test_grid_1.txt")
     print_grid(grid)
 
     # print("Iterating over row %s" % 5)
@@ -168,7 +168,7 @@ def main():
     # collapse all values in test grid
     for x, y in iter_grid_coordinates():
         value = get_value_in_grid(grid, x, y)
-        if value != " ":
+        if value != ".":
             # print("Collapsing value %s at (%s %s)" % (value, x, y))
             solve_matrix = collapse_to_value(solve_matrix, x, y, value)
 
